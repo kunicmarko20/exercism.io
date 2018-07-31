@@ -10,19 +10,41 @@ const HOURS_IN_A_DAY: i32 = 24;
 const MINUTES_IN_A_HOUR: i32 = 60;
 
 impl Clock {
-    pub fn new(mut hour: i32 , mut minute: i32) -> Clock {
-        while minute < 0 { 
-            hour -= 1;
-            minute += MINUTES_IN_A_HOUR 
+    pub fn new(hour: i32 , minute: i32) -> Clock {
+        Clock {
+            hours: Clock::calculate_hours(hour, minute),
+            minutes: Clock::calculate_minutes(minute)
+        }
+    }
+
+    fn calculate_minutes(minutes: i32) -> i32 {
+        let minutes_remainder = minutes % MINUTES_IN_A_HOUR;
+
+        if minutes_remainder == 0 {
+            return 0;
         }
 
-        hour += minute / MINUTES_IN_A_HOUR;
+        if minutes_remainder < 0 {
+            return MINUTES_IN_A_HOUR + minutes_remainder;
+        }
+        
+        minutes_remainder
+    }
 
-        while hour < 0 {
-            hour += HOURS_IN_A_DAY
+    fn calculate_hours(mut hours: i32, minutes: i32) -> i32 {
+        if minutes % MINUTES_IN_A_HOUR < 0 {
+            hours -= 1;
         }
 
-        Clock { hours: hour % HOURS_IN_A_DAY, minutes: minute % MINUTES_IN_A_HOUR }
+        hours += minutes / MINUTES_IN_A_HOUR;
+
+        let hours_remainder = hours % HOURS_IN_A_DAY;
+
+        if hours_remainder < 0 {
+            return HOURS_IN_A_DAY + hours_remainder;
+        }
+
+        hours_remainder
     }
 
     pub fn add_minutes(self, minutes: i32) -> Self {
