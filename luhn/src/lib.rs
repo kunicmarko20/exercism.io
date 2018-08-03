@@ -1,6 +1,6 @@
 /// Check a Luhn checksum.
 pub fn is_valid(code: &str) -> bool {
-    let code = clean_string(code);
+    let code = remove_space_in_string(code);
 
     if code.chars().count() < 2 {
         return false;
@@ -9,37 +9,36 @@ pub fn is_valid(code: &str) -> bool {
     let mut doubled_digits = Vec::new();
 
     for (index, character) in code.chars().rev().enumerate() {
-        if !character.is_digit(10) {
-            return false;
+        match get_digit_based_on_reminder(index, character.to_digit(10)) {
+            None => return false,
+            Some(digit) => doubled_digits.push(digit)
         }
-
-        doubled_digits.push(get_digit(index, character));
     }
 
     doubled_digits.iter().sum::<u32>() % 10 == 0
 }
 
-fn clean_string(code: &str) -> String
+fn remove_space_in_string(code: &str) -> String
 {
     code.replace(" ", "")
 }
 
-fn character_to_integer(character: char) -> u32
+fn get_digit_based_on_reminder(index: usize, option_digit: Option<u32>) -> Option<u32>
 {
-    character.to_string().parse::<u32>().unwrap()
-}
+    match option_digit {
+        None => return None,
+        Some(digit) => {   
+            if index % 2 != 0 {
+                let doubled_digit = digit + digit;
 
-fn get_digit(index: usize, character: char) -> u32
-{
-    let character_as_integer = character_to_integer(character);
-
-    if index % 2 != 0 {
-        if (character_as_integer + character_as_integer) > 9 {
-            return character_as_integer + character_as_integer - 9;
+                if doubled_digit > 9 {
+                    return Some(doubled_digit - 9);
+                }
+        
+                return Some(doubled_digit);
+            }
+            
+            return Some(digit);
         }
- 
-        return character_as_integer + character_as_integer;
     }
-    
-    character_as_integer
 }
