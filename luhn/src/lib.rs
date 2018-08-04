@@ -9,7 +9,7 @@ pub fn is_valid(code: &str) -> bool {
     let mut doubled_digits = Vec::new();
 
     for (index, character) in code.chars().rev().enumerate() {
-        match get_digit_based_on_reminder(index, character.to_digit(10)) {
+        match get_digit_based_on_reminder(index, character) {
             None => return false,
             Some(digit) => doubled_digits.push(digit)
         }
@@ -23,22 +23,19 @@ fn remove_space_in_string(code: &str) -> String
     code.replace(" ", "")
 }
 
-fn get_digit_based_on_reminder(index: usize, option_digit: Option<u32>) -> Option<u32>
+fn get_digit_based_on_reminder(index: usize, character: char) -> Option<u32>
 {
-    match option_digit {
-        None => return None,
-        Some(digit) => {   
-            if index % 2 != 0 {
-                let doubled_digit = digit + digit;
+    let digit = character.to_digit(10)?;
+  
+    if index % 2 != 0 {
+        let doubled_digit = digit + digit;
 
-                if doubled_digit > 9 {
-                    return Some(doubled_digit - 9);
-                }
-        
-                return Some(doubled_digit);
-            }
-            
-            return Some(digit);
+        if doubled_digit > 9 {
+            return Some(doubled_digit - 9);
         }
+
+        return Some(doubled_digit);
     }
+    
+    return Some(digit);
 }
