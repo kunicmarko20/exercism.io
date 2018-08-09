@@ -1,27 +1,28 @@
-const CHARACTERS_REGULAR: &'static str = "abcdefghijklmnopqrstuvwxyz";
-const CHARACTERS_REVERSED: &'static str = "zyxwvutsrqponmlkjihgfedcba";
+const CHARACTERS_REGULAR: &'static str = "abcdefghijklmnopqrstuvwxyz0123456789";
+const CHARACTERS_REVERSED: &'static str = "zyxwvutsrqponmlkjihgfedcba0123456789";
 
 pub fn encode(plain: &str) -> String {
-    let mut encoded = String::new();
+    let mut result = String::new();
 
-    for character in plain.to_lowercase().chars() {
-        match CHARACTERS_REGULAR.find(character) {
-            Some(position) => encoded += &CHARACTERS_REVERSED[position..position+1],
-            None => {
-                if let Some(digit) = character.to_digit(10) {
-                    encoded += &digit.to_string();
-                } else {
-                    continue;
-                }
-            }
+    for character in transform_input(plain, CHARACTERS_REGULAR, CHARACTERS_REVERSED).chars() {
+        if should_add_space_to(&result) {
+            result += " ";
         }
 
-        if should_add_space_to(&encoded) {
-            encoded += " ";
-        }
+        result += &character.to_string();
     }
 
-    encoded.trim().to_string()
+    result.trim().to_string()
+}
+
+fn transform_input(input: &str, find_in_string: &'static str, string_for_replace: &'static str) -> String {
+    input.to_lowercase().chars().map(|character| {
+        if let Some(position) = find_in_string.find(character) {
+            return &string_for_replace[position..position+1];
+        }
+ 
+        return "";
+    }).collect::<String>()
 }
 
 fn should_add_space_to(encoded: &String) -> bool {
@@ -31,20 +32,8 @@ fn should_add_space_to(encoded: &String) -> bool {
 fn get_count_of_valid_characters(encoded: &String) -> usize {
     encoded.replace(" ", "").chars().count()
 }
+
 /// "Decipher" with the Atbash cipher.
-pub fn decode(cipher: &str) -> String {
-    let mut decoded = String::new();
-
-    for character in cipher.chars() {
-        match CHARACTERS_REVERSED.find(character) {
-            Some(position) => decoded += &CHARACTERS_REGULAR[position..position+1],
-            None =>  {
-                if let Some(digit) = character.to_digit(10) {
-                    decoded += &digit.to_string();
-                }
-            }
-        }
-    }
-
-    decoded
+pub fn decode(plain: &str) -> String {
+    transform_input(plain, CHARACTERS_REVERSED, CHARACTERS_REGULAR)
 }
