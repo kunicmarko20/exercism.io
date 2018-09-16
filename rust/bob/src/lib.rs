@@ -22,10 +22,13 @@ pub fn reply(message: &str) -> &str {
 
 fn is_yelling(message: &str) -> bool
 {
-    message == message.to_string().to_uppercase() && message != message.to_string().to_lowercase()
+    message == message.to_uppercase() && message != message.to_lowercase()
 }
 
 fn is_question(message: &str) -> bool
 {
-    message.chars().last().unwrap() == '?'
+    match message.chars().last() {
+        None => false,
+        Some(character) => character == '?'
+    }
 }
